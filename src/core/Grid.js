@@ -7,8 +7,11 @@ var Node = require('./Node');
  * @param {number} height Number of rows of the grid.
  * @param {Array.<Array.<(number|boolean)>>} [matrix] - A 0-1 matrix
  *     representing the walkable status of the nodes(0 or false for walkable).
- *     If the matrix is not supplied, all the nodes will be walkable.  */
-function Grid(width, height, matrix) {
+ *     If the matrix is not supplied, all the nodes will be walkable.  
+ * @param {Array.<Array.<number>>} [heightmap] - An integer matrix representing the 
+ * heightmap. If not supplied, all the nodes will have 0 height
+ **/
+function Grid(width, height, matrix, heightmap) {
     /**
      * The number of columns of the grid.
      * @type number
@@ -23,7 +26,7 @@ function Grid(width, height, matrix) {
     /**
      * A 2D array of nodes.
      */
-    this.nodes = this._buildNodes(width, height, matrix);
+    this.nodes = this._buildNodes(width, height, matrix, heightmap);
 }
 
 /**
@@ -35,7 +38,7 @@ function Grid(width, height, matrix) {
  *     the walkable status of the nodes.
  * @see Grid
  */
-Grid.prototype._buildNodes = function(width, height, matrix) {
+Grid.prototype._buildNodes = function(width, height, matrix, heightmap) {
     var i, j,
         nodes = new Array(height),
         row;
@@ -52,7 +55,11 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
         return nodes;
     }
 
-    if (matrix.length !== height || matrix[0].length !== width) {
+    var doesNotFit = function(mat) {
+	return mat.length !== height || mat[0].length !== width
+    }
+
+    if (doesNotFit(matrix)) {
         throw new Error('Matrix size does not fit');
     }
 
@@ -63,6 +70,20 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
                 // while others will be un-walkable
                 nodes[i][j].walkable = false;
             }
+        }
+    }
+
+    if (heightmap === undefined) {
+	    return nodes;
+    }
+
+    if (doesNotFit(heightmap)) {
+        throw new Error('Matrix size does not fit');
+    }
+
+    for (i = 0; i < height; ++i) {
+        for (j = 0; j < width; ++j) {
+            nodes[i][j].height = heightmap[i][j];
         }
     }
 

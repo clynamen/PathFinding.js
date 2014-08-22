@@ -121,4 +121,57 @@ describe('Grid', function() {
             ].sort(cmp))
         });
     });
+
+    describe('generate with heightmap', function() {
+        var matrix, grid, width, height;
+
+        var enumPos = function(f, o) {
+            for (var y = 0; y < height; ++y) {
+                for (var x = 0; x < width; ++x) {
+                    if (o) {
+                        f.call(o, x, y, grid);
+                    } else {
+                        f(x, y, grid);
+                    }
+                }
+            }
+        };
+
+        beforeEach(function() {
+            matrix = [
+                [1, 0, 0, 1],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 0],
+                [1, 0, 0, 1],
+            ];
+	    heightmap = [
+                [1, 23, 0, 1],
+                [0, 1, 34, 0],
+                [0, 2, 0, 0],
+                [0, 0, 2, 3],
+                [1, 0, 2, 4],
+	    ];
+            height = matrix.length;
+            width = matrix[0].length;
+            grid = new Grid(width, height, matrix, heightmap);
+        });
+
+        it('should have correct size', function() {
+            grid.width.should.equal(width);
+            grid.height.should.equal(height);
+
+            grid.nodes.length.should.equal(height);
+            for (var i = 0; i < height; ++i) {
+                grid.nodes[i].length.should.equal(width); 
+            }
+        });
+
+        it('nodes should have right height', function() {
+            grid.nodes[0][1].height.should.equal(heightmap[0][1]);
+            grid.nodes[1][2].height.should.equal(heightmap[1][2]);
+            grid.nodes[4][3].height.should.equal(heightmap[4][3]);
+        });
+
+    });
 });

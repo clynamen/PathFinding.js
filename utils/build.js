@@ -7,7 +7,7 @@ var browserify = require('browserify');
 
 function bundle(file, callback) {
   var opts = { standalone: 'PF' };
-  browserify(file).bundle(opts, callback);
+  browserify().add(file, opts).bundle( callback);
 }
 
 function addBanner(source) {
