@@ -171,10 +171,24 @@ var View = {
             // XXX: Maybe draw a line from this node to its parent?
             // This would be expensive.
             break;
+        case 'height':
+	    console.log("setting white color for value: " + value);
+	    color = this.colorForHeight(value);
+            this.setWalkableAt(gridX, gridY, color);
+            break;
         default:
             console.error('unsupported operation: ' + attr + ':' + value);
             return;
         }
+    },
+    colorForHeight: function(value) {
+	    // TODO: Interpolate between green and brown
+	    if(value < 0 || value > 255) {
+		    throw new Error("Unexpected height value: " + value)
+	    }
+	    var col = $.Color( [value, value, value] ).toHexString();
+	    console.log("the new color for height is " + col);
+	    return col;
     },
     colorizeNode: function(node, color) {
         node.animate({

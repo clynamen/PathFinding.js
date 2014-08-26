@@ -91,7 +91,8 @@ var Controller = StateMachine.create({
 });
 
 $.extend(Controller, {
-    gridSize: [64, 36], // number of nodes horizontally and vertically
+    //gridSize: [64, 36], // number of nodes horizontally and vertically
+    gridSize: [3, 3], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
 
     /**
@@ -101,7 +102,10 @@ $.extend(Controller, {
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1];
 
-        this.grid = new PF.Grid(numCols, numRows);
+	var startGrid = [[0, 0, 1], [0, 0, 0], [0, 0, 0]];
+	var startHeightmap = [[2, 2, 53], [23, 34, 35], [200, 180, 100]];
+
+        this.grid = new PF.Grid(numCols, numRows, startGrid, startHeightmap);
 
         View.init({
             numCols: numCols,
@@ -304,8 +308,8 @@ $.extend(Controller, {
                 Controller.operations.push({
                     x: this.x,
                     y: this.y,
-                    attr: 'opened',
-                    value: v
+                    attr: 'height',
+                    value: this.height
                 });
             },
             get closed() {
@@ -493,7 +497,11 @@ $.extend(Controller, {
     },
     setWalkableAt: function(gridX, gridY, walkable) {
         this.grid.setWalkableAt(gridX, gridY, walkable);
-        View.setAttributeAt(gridX, gridY, 'walkable', walkable);
+	if(walkable === true) {
+	   View.setAttributeAt(gridX, gridY, 'height', this.grid.getNodeAt(gridX, gridY).height);
+	} else {
+	   View.setAttributeAt(gridX, gridY, 'walkable', walkable);
+	}
     },
     isStartPos: function(gridX, gridY) {
         return gridX === this.startX && gridY === this.startY;
