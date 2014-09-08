@@ -1,5 +1,6 @@
 var PF        = require('..')
 var scenarios = require('./PathTestScenarios');
+var Cost = require('../src/core/Cost');
 
 /**
  * Path-finding tests for the path-finders.
@@ -37,8 +38,9 @@ function pathTest(opt) {
             matrix = scen.matrix;
             height = matrix.length;
             width = matrix[0].length;
+            heightmap = scen.heightmap;
 
-            grid = new PF.Grid(width, height, matrix);
+            grid = new PF.Grid(width, height, matrix, heightmap);
 
             test(
                 scen.startX, scen.startY, 
@@ -78,6 +80,14 @@ pathTests({
     name: 'BiDijkstra',
     finder: new PF.BiDijkstraFinder(),
     optimal: true
+});
+
+// finders guaranteed to find the shortest path while 
+// taking in account the slope
+pathTests({
+    name: 'AStar with slope',
+    finder: new PF.AStarFinder( { slopeCost: Cost.slope } ),
+    optimal: false
 });
 
 // finders NOT guaranteed to find the shortest path

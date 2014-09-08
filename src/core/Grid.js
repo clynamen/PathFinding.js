@@ -62,6 +62,14 @@ Grid.prototype._setHeightMap = function(heightmap) {
     }
 }
 
+Grid.prototype._setHeightMapToZero = function() {
+    for (var i = 0; i < this.height; ++i) {
+        for (var j = 0; j < this.width; ++j) {
+            this.nodes[i][j].height = 0;
+        }
+    }
+}
+
 /**
  * Build and return the nodes.
  * @private
@@ -92,6 +100,8 @@ Grid.prototype._buildNodes = function(width, height, matrix, heightmap) {
 
     if (heightmap !== undefined) {
       this._setHeightMap(heightmap);
+    } else {
+      this._setHeightMapToZero();
     }
 
 };
@@ -99,6 +109,16 @@ Grid.prototype._buildNodes = function(width, height, matrix, heightmap) {
 
 Grid.prototype.getNodeAt = function(x, y) {
     return this.nodes[y][x];
+};
+
+/**
+ * Get the height of the node at x, y
+ * @param {number} x - The x coordinate of the node.
+ * @param {number} y - The y coordinate of the node.
+ * @return {number} - The height of the node
+ */
+Grid.prototype.getHeightAt = function(x, y) {
+    return this.nodes[y][x].height;
 };
 
 
