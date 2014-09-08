@@ -4,6 +4,9 @@
  * See https://github.com/jakesgordon/javascript-state-machine
  * for the document of the StateMachine module.
  */
+
+var MOUSE_WHEEL_COLOR_MULTIPLIER = 15;
+
 var Controller = StateMachine.create({
     initial: 'none',
     events: [
@@ -91,8 +94,7 @@ var Controller = StateMachine.create({
 });
 
 $.extend(Controller, {
-    //gridSize: [64, 36], // number of nodes horizontally and vertically
-    gridSize: [3, 3], // number of nodes horizontally and vertically
+    gridSize: [5, 5], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
 
     /**
@@ -102,10 +104,7 @@ $.extend(Controller, {
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1];
 
-	var startGrid = [[0, 0, 1], [0, 0, 0], [0, 0, 0]];
-	var startHeightmap = [[2, 2, 53], [23, 34, 35], [200, 180, 100]];
-
-        this.grid = new PF.Grid(numCols, numRows, startGrid, startHeightmap);
+        this.grid = new PF.Grid(numCols, numRows);
 
         View.init({
             numCols: numCols,
@@ -308,8 +307,8 @@ $.extend(Controller, {
                 Controller.operations.push({
                     x: this.x,
                     y: this.y,
-                    attr: 'height',
-                    value: this.height
+                    attr: 'opened',
+                    value: v
                 });
             },
             get closed() {
@@ -342,6 +341,7 @@ $.extend(Controller, {
     },
     bindEvents: function() {
         $('#draw_area').mousedown($.proxy(this.mousedown, this));
+        $('#draw_area').mousewheel($.proxy(this.mousewheel, this));
         $(window)
             .mousemove($.proxy(this.mousemove, this))
             .mouseup($.proxy(this.mouseup, this));
@@ -375,12 +375,12 @@ $.extend(Controller, {
         this.operations = [];
     },
     clearFootprints: function() {
-        View.clearFootprints();
-        View.clearPath();
+        View.clearFootprints(this.grid);
+        View.clearPath(this.grid);
     },
     clearAll: function() {
         this.clearFootprints();
-        View.clearBlockedNodes();
+        View.clearBlockedNodes(this.grid);
     },
     buildNewGrid: function() {
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
@@ -405,6 +405,23 @@ $.extend(Controller, {
         }
         if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
             this.eraseWall(gridX, gridY);
+        }
+    },
+    clamp: function(x, min, max) {
+      return Math.max(min, Math.min(max, x));
+    },
+    mousewheel: function(event) {
+        var coord = View.toGridCoordinate(event.pageX, event.pageY),
+            gridX = coord[0],
+            gridY = coord[1],
+            grid  = this.grid;
+
+        if (grid.isWalkableAt(gridX, gridY)) {
+            var currentHeight = grid.getHeightAt(gridX, gridY);
+            var newHeight = this.clamp(currentHeight + 
+                event.deltaY * MOUSE_WHEEL_COLOR_MULTIPLIER, 0, 255);
+            this.setHeightAt(gridX, gridY, newHeight);
+            return;
         }
     },
     mousemove: function(event) {
@@ -482,8 +499,10 @@ $.extend(Controller, {
         centerX = Math.ceil(availWidth / 2 / nodeSize);
         centerY = Math.floor(height / 2 / nodeSize);
 
-        this.setStartPos(centerX - 5, centerY);
-        this.setEndPos(centerX + 5, centerY);
+        //this.setStartPos(centerX - 5, centerY);
+        //this.setEndPos(centerX + 5, centerY);
+        this.setStartPos( 0, 2);
+        this.setEndPos(4, 2);
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
@@ -495,13 +514,13 @@ $.extend(Controller, {
         this.endY = gridY;
         View.setEndPos(gridX, gridY);
     },
+    setHeightAt: function(gridX, gridY, newHeight) {
+        this.grid.setHeightAt(gridX, gridY, newHeight);
+        View.setAttributeAt(gridX, gridY, 'height', newHeight);
+    },
     setWalkableAt: function(gridX, gridY, walkable) {
         this.grid.setWalkableAt(gridX, gridY, walkable);
-	if(walkable === true) {
-	   View.setAttributeAt(gridX, gridY, 'height', this.grid.getNodeAt(gridX, gridY).height);
-	} else {
-	   View.setAttributeAt(gridX, gridY, 'walkable', walkable);
-	}
+        View.setAttributeAt(gridX, gridY, 'walkable', walkable);
     },
     isStartPos: function(gridX, gridY) {
         return gridX === this.startX && gridY === this.startY;

@@ -39,12 +39,16 @@ var Panel = {
                                      '.allow_diagonal:checked').val() !== 'undefined';
             biDirectional = typeof $('#astar_section ' +
                                      '.bi-directional:checked').val() !=='undefined';
+            useSlope = typeof $('#astar_section ' +
+                                     '.use_slope:checked').val() !=='undefined';
             dontCrossCorners = typeof $('#astar_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
 
             /* parseInt returns NaN (which is falsy) if the string can't be parsed */
             weight = parseInt($('#astar_section .spinner').val()) || 1;
             weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
+
+            slopeCost = useSlope ? PF.Cost.slope : PF.Cost.nullCost;
 
             heuristic = $('input[name=astar_heuristic]:checked').val();
             if (biDirectional) {
@@ -59,6 +63,7 @@ var Panel = {
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
                     heuristic: PF.Heuristic[heuristic],
+                    slopeCost: slopeCost,
                     weight: weight
                 });
             }

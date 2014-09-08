@@ -121,6 +121,16 @@ Grid.prototype.getHeightAt = function(x, y) {
     return this.nodes[y][x].height;
 };
 
+/**
+ * Set the height of the node at x, y
+ * @param {number} x - The x coordinate of the node.
+ * @param {number} y - The y coordinate of the node.
+ * @return {number} - The new height of the node
+ */
+Grid.prototype.setHeightAt = function(x, y, newHeight) {
+    return this.nodes[y][x].height = newHeight;
+};
+
 
 /**
  * Determine whether the node at the given position is walkable.
@@ -265,7 +275,8 @@ Grid.prototype.clone = function() {
     for (i = 0; i < height; ++i) {
         newNodes[i] = new Array(width);
         for (j = 0; j < width; ++j) {
-            newNodes[i][j] = new Node(j, i, thisNodes[i][j].walkable);
+            thisNode = thisNodes[i][j];
+            newNodes[i][j] = new Node(j, i, thisNode.walkable, thisNode.height);
         }
     }
 

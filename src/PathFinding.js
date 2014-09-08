@@ -4,6 +4,7 @@ module.exports = {
     'Grid'                      : require('./core/Grid'),
     'Util'                      : require('./core/Util'),
     'Heuristic'                 : require('./core/Heuristic'),
+    'Cost'                      : require('./core/Cost'),
     'AStarFinder'               : require('./finders/AStarFinder'),
     'BestFirstFinder'           : require('./finders/BestFirstFinder'),
     'BreadthFirstFinder'        : require('./finders/BreadthFirstFinder'),

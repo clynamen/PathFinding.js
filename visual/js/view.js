@@ -153,6 +153,9 @@ var View = {
             color = value ? nodeStyle.normal.fill : nodeStyle.blocked.fill;
             this.setWalkableAt(gridX, gridY, value);
             break;
+        case 'height':
+            this.setHeightAt(gridX, gridY, value);
+            break;
         case 'opened':
             this.colorizeNode(this.rects[gridY][gridX], nodeStyle.opened.fill);
             this.setCoordDirty(gridX, gridY, true);
@@ -171,24 +174,10 @@ var View = {
             // XXX: Maybe draw a line from this node to its parent?
             // This would be expensive.
             break;
-        case 'height':
-	    console.log("setting white color for value: " + value);
-	    color = this.colorForHeight(value);
-            this.setWalkableAt(gridX, gridY, color);
-            break;
         default:
             console.error('unsupported operation: ' + attr + ':' + value);
             return;
         }
-    },
-    colorForHeight: function(value) {
-	    // TODO: Interpolate between green and brown
-	    if(value < 0 || value > 255) {
-		    throw new Error("Unexpected height value: " + value)
-	    }
-	    var col = $.Color( [value, value, value] ).toHexString();
-	    console.log("the new color for height is " + col);
-	    return col;
     },
     colorizeNode: function(node, color) {
         node.animate({
@@ -231,17 +220,28 @@ var View = {
             this.zoomNode(node);
         }
     },
-    clearFootprints: function() {
+    colorForHeight: function(height) {
+      if(height === 0) return this.nodeStyle.normal;
+      var green = 'hsl(120, 100%, 50%)'; 
+      var brown = 'hsl(0, 25%, 35%)';
+      var color =  $.Color(InterpolateColor.interpolate(green, brown, height/255)).toHexString();
+      return color;
+    },
+    setHeightAt: function(gridX, gridY, value) {
+        var node = this.rects[gridY][gridX]; 
+        this.colorizeNode(node, this.colorForHeight(value));
+    },
+    clearFootprints: function(grid) {
         var i, x, y, coord, coords = this.getDirtyCoords();
         for (i = 0; i < coords.length; ++i) {
             coord = coords[i];
             x = coord[0];
             y = coord[1];
-            this.rects[y][x].attr(this.nodeStyle.normal);
+            this.setHeightAt(x, y, grid.getHeightAt(x,y));
             this.setCoordDirty(x, y, false);
         }
     },
-    clearBlockedNodes: function() {
+    clearBlockedNodes: function(grid) {
         var i, j, blockedNodes = this.blockedNodes;
         if (!blockedNodes) {
             return;
@@ -277,7 +277,7 @@ var View = {
 
         return strs.join('');
     },
-    clearPath: function() {
+    clearPath: function(grid) {
         if (this.path) {
             this.path.remove();
         }
