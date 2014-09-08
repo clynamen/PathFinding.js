@@ -26,7 +26,40 @@ function Grid(width, height, matrix, heightmap) {
     /**
      * A 2D array of nodes.
      */
-    this.nodes = this._buildNodes(width, height, matrix, heightmap);
+    this._buildNodes(width, height, matrix, heightmap);
+}
+
+Grid.prototype._doesNotFit = doesNotFit = function(mat) {
+	return mat.length !== this.height || mat[0].length !== this.width;
+}
+
+Grid.prototype._assertSizeFits = function(matrix) {
+    if (this._doesNotFit(matrix)) {
+        throw new Error('Matrix size does not fit');
+    }
+}
+
+Grid.prototype._setMatrix = function(matrix) {
+    this._assertSizeFits(matrix);
+    for (i = 0; i < this.height; ++i) {
+        for (j = 0; j < this.width; ++j) {
+            if (matrix[i][j]) {
+                // 0, false, null will be walkable
+                // while others will be un-walkable
+                this.nodes[i][j].walkable = false;
+            }
+        }
+    }
+}
+
+
+Grid.prototype._setHeightMap = function(heightmap) {
+    this._assertSizeFits(heightmap);
+    for (i = 0; i < this.height; ++i) {
+        for (j = 0; j < this.width; ++j) {
+            this.nodes[i][j].height = heightmap[i][j];
+        }
+    }
 }
 
 /**
@@ -50,44 +83,17 @@ Grid.prototype._buildNodes = function(width, height, matrix, heightmap) {
         }
     }
 
+    this.nodes = nodes;
 
-    if (matrix === undefined) {
-        return nodes;
+
+    if (matrix !== undefined) {
+      this._setMatrix(matrix)
     }
 
-    var doesNotFit = function(mat) {
-	return mat.length !== height || mat[0].length !== width
+    if (heightmap !== undefined) {
+      this._setHeightMap(heightmap);
     }
 
-    if (doesNotFit(matrix)) {
-        throw new Error('Matrix size does not fit');
-    }
-
-    for (i = 0; i < height; ++i) {
-        for (j = 0; j < width; ++j) {
-            if (matrix[i][j]) {
-                // 0, false, null will be walkable
-                // while others will be un-walkable
-                nodes[i][j].walkable = false;
-            }
-        }
-    }
-
-    if (heightmap === undefined) {
-	    return nodes;
-    }
-
-    if (doesNotFit(heightmap)) {
-        throw new Error('Matrix size does not fit');
-    }
-
-    for (i = 0; i < height; ++i) {
-        for (j = 0; j < width; ++j) {
-            nodes[i][j].height = heightmap[i][j];
-        }
-    }
-
-    return nodes;
 };
 
 
