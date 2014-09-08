@@ -41,8 +41,8 @@ Grid.prototype._assertSizeFits = function(matrix) {
 
 Grid.prototype._setMatrix = function(matrix) {
     this._assertSizeFits(matrix);
-    for (i = 0; i < this.height; ++i) {
-        for (j = 0; j < this.width; ++j) {
+    for (var i = 0; i < this.height; ++i) {
+        for (var j = 0; j < this.width; ++j) {
             if (matrix[i][j]) {
                 // 0, false, null will be walkable
                 // while others will be un-walkable
@@ -55,8 +55,8 @@ Grid.prototype._setMatrix = function(matrix) {
 
 Grid.prototype._setHeightMap = function(heightmap) {
     this._assertSizeFits(heightmap);
-    for (i = 0; i < this.height; ++i) {
-        for (j = 0; j < this.width; ++j) {
+    for (var i = 0; i < this.height; ++i) {
+        for (var j = 0; j < this.width; ++j) {
             this.nodes[i][j].height = heightmap[i][j];
         }
     }
