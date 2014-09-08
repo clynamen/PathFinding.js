@@ -1,6 +1,7 @@
 var Heap       = require('heap');
 var Util       = require('../core/Util');
 var Heuristic  = require('../core/Heuristic');
+var Cost       = require('../core/Cost');
 
 /**
  * A* path-finder.
@@ -19,6 +20,7 @@ function AStarFinder(opt) {
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
     this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.slope = opt.slope || Cost.slope;
     this.weight = opt.weight || 1;
 }
 
