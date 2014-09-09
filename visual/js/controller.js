@@ -94,7 +94,7 @@ var Controller = StateMachine.create({
 });
 
 $.extend(Controller, {
-    gridSize: [5, 5], // number of nodes horizontally and vertically
+    gridSize: [64, 32], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
 
     /**
@@ -195,6 +195,7 @@ $.extend(Controller, {
             Controller.clearOperations();
             Controller.clearAll();
             Controller.buildNewGrid();
+            Controller.setDefaultStartEndPos();
         }, View.nodeColorizeEffect.duration * 1.2);
         // => ready
     },
@@ -381,6 +382,7 @@ $.extend(Controller, {
     clearAll: function() {
         this.clearFootprints();
         View.clearBlockedNodes(this.grid);
+        View.clearAll(this.grid);
     },
     buildNewGrid: function() {
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
@@ -499,10 +501,8 @@ $.extend(Controller, {
         centerX = Math.ceil(availWidth / 2 / nodeSize);
         centerY = Math.floor(height / 2 / nodeSize);
 
-        //this.setStartPos(centerX - 5, centerY);
-        //this.setEndPos(centerX + 5, centerY);
-        this.setStartPos( 0, 2);
-        this.setEndPos(4, 2);
+        this.setStartPos(centerX - 5, centerY);
+        this.setEndPos(centerX + 5, centerY);
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;

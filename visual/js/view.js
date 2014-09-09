@@ -54,7 +54,7 @@ var View = {
     init: function(opts) {
         this.numCols      = opts.numCols;
         this.numRows      = opts.numRows;
-        this.paper        = Raphael('draw_area');
+        this.paper        = this.paper || Raphael('draw_area');
         this.$stats       = $('#stats');
     },
     /**
@@ -76,6 +76,7 @@ var View = {
             rects       = this.rects = [],
             $stats      = this.$stats;
 
+        paper.clear();
         paper.setSize(numCols * nodeSize, numRows * nodeSize);
 
         createRowTask = function(rowId) {
@@ -166,7 +167,6 @@ var View = {
             break;
         case 'tested':
             color = (value === true) ? nodeStyle.tested.fill : nodeStyle.normal.fill;
-
             this.colorizeNode(this.rects[gridY][gridX], color);
             this.setCoordDirty(gridX, gridY, true);
             break;
@@ -221,15 +221,28 @@ var View = {
         }
     },
     colorForHeight: function(height) {
-      if(height === 0) return this.nodeStyle.normal;
+      if(height == 0) return this.nodeStyle.normal.fill;
       var green = 'hsl(120, 100%, 50%)'; 
       var brown = 'hsl(0, 25%, 35%)';
       var color =  $.Color(InterpolateColor.interpolate(green, brown, height/255)).toHexString();
       return color;
     },
+    resetNode: function(gridX, gridY, height) {
+        var node = this.rects[gridY][gridX]; 
+        this.setCoordDirty(gridX, gridY, false);
+        this.colorizeNode(node, this.colorForHeight(height));
+    },
     setHeightAt: function(gridX, gridY, value) {
         var node = this.rects[gridY][gridX]; 
         this.colorizeNode(node, this.colorForHeight(value));
+    },
+    clearAll: function(grid) {
+        var x, y;
+        for (y = 0; y < grid.height; ++y) {
+          for (x = 0; x < grid.height; ++x) {
+            this.resetNode(x, y, 0);
+          }
+        }
     },
     clearFootprints: function(grid) {
         var i, x, y, coord, coords = this.getDirtyCoords();
@@ -237,8 +250,7 @@ var View = {
             coord = coords[i];
             x = coord[0];
             y = coord[1];
-            this.setHeightAt(x, y, grid.getHeightAt(x,y));
-            this.setCoordDirty(x, y, false);
+            this.resetNode(x, y, grid.getHeightAt(x,y));
         }
     },
     clearBlockedNodes: function(grid) {
