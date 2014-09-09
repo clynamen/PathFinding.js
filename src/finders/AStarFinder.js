@@ -21,6 +21,7 @@ function AStarFinder(opt) {
     this.dontCrossCorners = opt.dontCrossCorners;
     this.heuristic = opt.heuristic || Heuristic.manhattan;
     this.slopeCost = opt.slopeCost || Cost.nullCost;
+    this.slopeMultiplier = opt.slopeMultiplier || 1;
     this.weight = opt.weight || 1;
 }
 
@@ -76,7 +77,7 @@ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
             // get the distance between current node and the neighbor
             // and calculate the next g score
             ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
-            ng += this.slopeCost(grid.getHeightAt(node.x, node.y), grid.getHeightAt(x, y));
+            ng += this.slopeMultiplier * this.slopeCost(grid.getHeightAt(node.x, node.y), grid.getHeightAt(x, y));
 
             // check if the neighbor has not been inspected yet, or
             // can be reached with smaller cost from the current node

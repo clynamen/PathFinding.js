@@ -13,13 +13,13 @@ module.exports = {
   },
 
   /**
-   * Simple height difference
+   * Height difference multiplied by a costant
    * @param {number} currentHeight - height of the current node
    * @param {number} nextHeight - height of the next node
    * @return {number} nextHeight - currentHeight
    */
   slope: function(currentHeight, nextHeight) {
-      return  nextHeight - currentHeight;
+      return  (nextHeight - currentHeight) * 0.1;
   }
 
 };
